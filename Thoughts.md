@@ -117,9 +117,32 @@ The `writeBytes` function accepts four parameters: `cmd`, `offset`, `data` and `
 - `data := reverseEUI` memory reversed version of the EUI data.
 - `data_size := LEN_EUI` which is defined as 8.
 
-Turns out this `NO_SUB` is part of the addressing mode. The 6th bit of the first byte indicates whether the header will contain a secnod byte. If it does the MSB of the second byte indicates whether there is extended subindexing (three header bytes).
+Turns out this `NO_SUB` is part of the addressing mode. The 6th bit of the first byte indicates whether the header will contain a second byte. If it does, the MSB of the second byte indicates whether there is extended subindexing (three header bytes).
 
 <div style="text-align:center">
-<img src="./ZDocStuff//WriteMode_2_octet_header.png" style="width: 70%;" />
-<img src="./ZDocStuff//WriteMode_3_octet_header.png" style="width: 70%;" />
+<img src="./ZDocStuff/WriteMode_2_octet_header.png" style="width: 70%;" />
+<img src="./ZDocStuff/WriteMode_3_octet_header.png" style="width: 70%;" />
 </div>
+
+# How to do two way ranging (APS013)
+The diagram below shows two way ranging scheme as explained by Decawave. The anchor (left) and Tag (right) are the two participants. The tag begins by sending the `Blink` messages meant to find a ranging partner. The anchor responds to one of these by the `RangingInit` message. The Tag now understands it can begin ranging. Ranging starts with the `Poll` message from the Tag. The anchor responds with `Response` message. And the tag finally responds with `Final` message. If the application requires that the Tag have the range reading then the anchor sends a final `Optional Response` message.
+<div style="text-align:center">
+<img src="./ZDocStuff/TWRBasic.png" style="width: 70%;" />
+</div>
+
+Decawave APS013 identifies two phases: `Discovery Phase` and `Ranging Phase`. The Discovery Phase contains only the `Blink` and `RangingInit` messages. The `Ranging Phase` contains the `Poll, Response, Final` and possibly the `Optional Response` messages.
+
+Zooming in on the the `Ranging Phase` messages, we can perform the range calculation using the formula below (with quantities from teh annotated diagram).
+$$T_{prop} = \frac{T_{round,1} \times T_{round,2} - T_{reply,1} \times T_{reply,2}}{T_{round,1} + T_{round,2} + T_{reply,1} + T_{reply,1}}$$
+
+<div style="text-align:center">
+<img src="./ZDocStuff/AsymmetricTWR_annotatted.png" style="width: 70%;" />
+</div>
+
+Seems straight forward enough?!!! So how do we get the devices to operate this way?
+
+## Nice Seeming Tool `rpi-uwb-sniffer`
+- [rpi-uwb-sniffer](https://gitlab.inria.fr/dalu/rpi-uwb-sniffer)
+
+## Back to Work!!
+
